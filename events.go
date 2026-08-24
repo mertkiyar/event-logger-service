@@ -1,4 +1,4 @@
-package eventloggerservice
+package main
 
 type Event struct {
 	UserId    string

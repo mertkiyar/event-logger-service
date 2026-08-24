@@ -1,1 +1,4 @@
-package eventloggerservice
+package main
+
+func Main() {
+}
