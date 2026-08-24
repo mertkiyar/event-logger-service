@@ -49,3 +49,21 @@ func createEventHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "The event saved successfuly, now total event number is: %d", len(events))
 }
+
+func getEventsHandler(w http.ResponseWriter, r *http.Request) {
+	// in this if block, the service allow only get method
+	if r.Method != http.MethodGet {
+		http.Error(w, "Only Get Method allowed!", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// return type is json
+	w.Header().Set("Content-Type", "application/json")
+
+	// convert the event slice to json format and write inside of response
+	err := json.NewEncoder(w).Encode(events)
+	if err != nil {
+		http.Error(w, "Failed to encode events!", http.StatusInternalServerError)
+		return
+	}
+}
