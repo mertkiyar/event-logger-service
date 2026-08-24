@@ -12,8 +12,16 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Event Logger Service working good!")
 	})
-	http.HandleFunc("/events", createEventHandler)
-
+	http.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			createEventHandler(w, r)
+		case http.MethodGet:
+			getEventsHandler(w, r)
+		default:
+			http.Error(w, "Method not allowed!", http.StatusMethodNotAllowed)
+		}
+	})
 	fmt.Println("Service working on 8080 port")
 
 	err := http.ListenAndServe(":8080", nil)
