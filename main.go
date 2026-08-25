@@ -50,6 +50,13 @@ func createEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if the event type is not predefined to new event, no new events are created
+	// only defined types like login, clik and signup allowed
+	if !newEvent.EventType.IsValid() {
+		http.Error(w, "Invalid event type! Just use login, signup or click.", http.StatusBadRequest)
+		return
+	}
+
 	// append the new event in the events slice
 	events = append(events, newEvent)
 
