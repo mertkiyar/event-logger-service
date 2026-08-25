@@ -22,6 +22,8 @@ func main() {
 			http.Error(w, "Method not allowed!", http.StatusMethodNotAllowed)
 		}
 	})
+	http.HandleFunc("/stats", getStatsHandler)
+
 	fmt.Println("Service working on 8080 port")
 
 	err := http.ListenAndServe(":8080", nil)
@@ -94,9 +96,33 @@ func getEventsHandler(w http.ResponseWriter, r *http.Request) {
 			filteredEvents = append(filteredEvents, event)
 		}
 	}
+
 	err := json.NewEncoder(w).Encode(filteredEvents)
 	if err != nil {
 		http.Error(w, "Failed to encode events!", http.StatusInternalServerError)
+		return
+	}
+}
+func getStatsHandler(w http.ResponseWriter, r *http.Request) {
+	// in this if block, the service allow only get method
+	if r.Method != http.MethodGet {
+		http.Error(w, "Only Get Method allowed!", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// return type is json
+	w.Header().Set("Content-Type", "application/json")
+
+	// event type and number of this event
+	stats := make(map[string]int)
+
+	for _, event := range events {
+		stats[string(event.EventType)]++
+	}
+
+	err := json.NewEncoder(w).Encode(stats)
+	if err != nil {
+		http.Error(w, "Failed to encode stats!", http.StatusInternalServerError)
 		return
 	}
 }
