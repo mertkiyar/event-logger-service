@@ -7,8 +7,17 @@ import (
 )
 
 var events []Event
+var eventChan = make(chan Event)
+
+func eventWorker() {
+	for event := range eventChan {
+		events = append(events, event)
+		fmt.Println("new event processed:", event)
+	}
+}
 
 func main() {
+	go eventWorker()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Event Logger Service working good!")
 	})
@@ -59,12 +68,12 @@ func createEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// append the new event in the events slice
-	events = append(events, newEvent)
+	// throw the new event data inside of channel
+	eventChan <- newEvent
 
 	// write the console 201 success http status code
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "The event saved successfuly, now total event number is: %d", len(events))
+	fmt.Fprintf(w, "The event has been processed")
 }
 
 func getEventsHandler(w http.ResponseWriter, r *http.Request) {
