@@ -4,6 +4,7 @@ type EventName string
 
 const (
 	EventLogin  EventName = "login"
+	EventLogout EventName = "logout"
 	EventSignup EventName = "signup"
 	EventClick  EventName = "click"
 )
@@ -15,7 +16,7 @@ type Event struct {
 
 func (e EventName) IsValid() bool {
 	switch e {
-	case EventLogin, EventSignup, EventClick:
+	case EventLogin, EventLogout, EventSignup, EventClick:
 		return true
 	default:
 		return false

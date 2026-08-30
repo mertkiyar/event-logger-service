@@ -12,7 +12,7 @@ var eventChan = make(chan Event)
 func eventWorker() {
 	for event := range eventChan {
 		events = append(events, event)
-		fmt.Println("new event processed:", event)
+		fmt.Println("new event processed:", event.UserId, "->", event.EventType)
 	}
 }
 
@@ -60,7 +60,7 @@ func createEventHandler(w http.ResponseWriter, r *http.Request) {
 	// if the event type is not predefined to new event, no new events are created
 	// only defined types like login, click and signup allowed
 	if !newEvent.EventType.IsValid() {
-		http.Error(w, "Invalid event type! Just use login, signup or click.", http.StatusBadRequest)
+		http.Error(w, "Invalid event type!", http.StatusBadRequest)
 		return
 	}
 
