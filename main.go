@@ -21,6 +21,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Event Logger Service working good!")
 	})
+
 	http.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
@@ -31,6 +32,7 @@ func main() {
 			http.Error(w, "Method not allowed!", http.StatusMethodNotAllowed)
 		}
 	})
+
 	http.HandleFunc("/stats", getStatsHandler)
 
 	fmt.Println("Service working on 8080 port")
@@ -43,12 +45,6 @@ func main() {
 }
 
 func createEventHandler(w http.ResponseWriter, r *http.Request) {
-
-	// in this if block, the service allow only post method
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only Post Method allowed!", http.StatusMethodNotAllowed)
-		return
-	}
 
 	// create new event to convert json value from response
 	var newEvent Event
@@ -77,11 +73,6 @@ func createEventHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getEventsHandler(w http.ResponseWriter, r *http.Request) {
-	// in this if block, the service allow only get method
-	if r.Method != http.MethodGet {
-		http.Error(w, "Only Get Method allowed!", http.StatusMethodNotAllowed)
-		return
-	}
 
 	// return type is json
 	w.Header().Set("Content-Type", "application/json")
