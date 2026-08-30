@@ -50,7 +50,7 @@ func createEventHandler(w http.ResponseWriter, r *http.Request) {
 	var newEvent Event
 
 	// read the json value in the request body and fill out newEvent
-	// sending *newEvent because can write the data inside of variable
+	// sending *newEvent because can write the data inside variable
 	err := json.NewDecoder(r.Body).Decode(&newEvent)
 	if err != nil {
 		http.Error(w, "Invalid JSON format!", http.StatusBadRequest)
@@ -58,13 +58,13 @@ func createEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// if the event type is not predefined to new event, no new events are created
-	// only defined types like login, clik and signup allowed
+	// only defined types like login, click and signup allowed
 	if !newEvent.EventType.IsValid() {
 		http.Error(w, "Invalid event type! Just use login, signup or click.", http.StatusBadRequest)
 		return
 	}
 
-	// throw the new event data inside of channel
+	// throw the new event data inside channel
 	eventChan <- newEvent
 
 	// write the console 201 success http status code
@@ -81,7 +81,7 @@ func getEventsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if userID == "" {
 		if events != nil {
-			// convert the event slice to json format and write inside of response
+			// convert the event slice to json format and write inside response
 			err := json.NewEncoder(w).Encode(events)
 			if err != nil {
 				http.Error(w, "Failed to encode events!", http.StatusInternalServerError)
