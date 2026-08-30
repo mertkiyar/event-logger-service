@@ -7,7 +7,7 @@ import (
 )
 
 var events []Event
-var eventChan = make(chan Event)
+var eventChan = make(chan Event, 10000)
 
 func eventWorker() {
 	for event := range eventChan {
@@ -39,6 +39,7 @@ func main() {
 
 	go func() {
 		sendRequest()
+		sendRequestWithSpecificNumber(10000)
 	}()
 
 	err := http.ListenAndServe(":8080", nil)
