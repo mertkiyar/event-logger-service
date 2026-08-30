@@ -80,11 +80,15 @@ func getEventsHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.URL.Query().Get("user_id")
 
 	if userID == "" {
-		// convert the event slice to json format and write inside of response
-		err := json.NewEncoder(w).Encode(events)
-		if err != nil {
-			http.Error(w, "Failed to encode events!", http.StatusInternalServerError)
-			return
+		if events != nil {
+			// convert the event slice to json format and write inside of response
+			err := json.NewEncoder(w).Encode(events)
+			if err != nil {
+				http.Error(w, "Failed to encode events!", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			fmt.Fprintln(w, events)
 		}
 		return
 	}
