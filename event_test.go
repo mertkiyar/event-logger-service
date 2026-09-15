@@ -3,51 +3,60 @@ package main
 import "testing"
 
 func TestEventName_IsValid(t *testing.T) {
-	event := Event{}
-	event.EventType = "test-event-type"
-
-	if event.EventType.IsValid() {
-		t.Error("EventType.IsValid() should return false, because event type is invalid")
+	tests := []struct {
+		name      string
+		eventName EventName
+		want      bool
+	}{
+		{
+			name:      "login is valid",
+			eventName: EventLogin,
+			want:      true,
+		},
+		{
+			name:      "logout is valid",
+			eventName: EventLogout,
+			want:      true,
+		},
+		{
+			name:      "signup is valid",
+			eventName: EventSignup,
+			want:      true,
+		},
+		{
+			name:      "click is valid",
+			eventName: EventClick,
+			want:      true,
+		},
+		{
+			name:      "empty event name is invalid",
+			eventName: "",
+			want:      false,
+		},
+		{
+			name:      "unknown event name is invalid",
+			eventName: "unknown",
+			want:      false,
+		},
+		{
+			name:      "uppercase event name is invalid",
+			eventName: "CLICK",
+			want:      false,
+		},
 	}
 
-	eventBlank := Event{}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.eventName.IsValid()
 
-	if eventBlank.EventType.IsValid() {
-		t.Error("EventType.IsValid() should return false, because event type is empty")
-	}
-
-	eventCaseSensitive := Event{}
-	eventCaseSensitive.EventType = "CLICK"
-	if eventCaseSensitive.EventType.IsValid() {
-		t.Error("EventType.IsValid() should return false, because event type is invalid")
-	}
-
-	// All Valid Event Types should be true
-	eventLogin := Event{}
-	eventLogin.EventType = EventLogin
-
-	if !eventLogin.EventType.IsValid() {
-		t.Error("EventType.IsValid() should return true, because event type is valid")
-	}
-
-	eventLogout := Event{}
-	eventLogout.EventType = EventLogout
-
-	if !eventLogout.EventType.IsValid() {
-		t.Error("EventType.IsValid() should return true, because event type is valid")
-	}
-
-	eventSignup := Event{}
-	eventSignup.EventType = EventSignup
-
-	if !eventSignup.EventType.IsValid() {
-		t.Error("EventType.IsValid() should return true, because event type is valid")
-	}
-
-	eventClick := Event{}
-	eventClick.EventType = EventClick
-
-	if !eventClick.EventType.IsValid() {
-		t.Error("EventType.IsValid() should return true, because event type is valid")
+			if got != tt.want {
+				t.Errorf(
+					"EventName(%q).IsValid() = %v, valid %v",
+					tt.eventName,
+					got,
+					tt.want,
+				)
+			}
+		})
 	}
 }
