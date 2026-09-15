@@ -51,11 +51,6 @@ func main() {
 
 	fmt.Println("Service working on 8080 port")
 
-	go func() {
-		sendRequest()
-		sendRequestWithSpecificNumber(10000)
-	}()
-
 	err := http.ListenAndServe(":8080", nil)
 
 	if err != nil {
