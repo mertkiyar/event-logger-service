@@ -155,3 +155,52 @@ func TestCreateEventHandlerEmptyUserID(t *testing.T) {
 		t.Errorf("response body = %q, want %q", got, want)
 	}
 }
+
+/*
+	 Test Function: createEventHandler(http.ResponseWriter, http.Request)
+		Input: valid event
+	 	Expected Output: 201, "The event has been processed"
+*/
+func TestCreateEventHandlerValidEvent(t *testing.T) {
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/events",
+		strings.NewReader(
+			`{"user_id":"test-user","event_type":"click"}`,
+		),
+	)
+	w := httptest.NewRecorder()
+
+	// create a separate buffered channel so this test does not use events from other tests
+	oldChannel := eventChan
+	eventChan = make(chan Event, 1)
+	t.Cleanup(func() { eventChan = oldChannel }) // restore the original channel when the test finishes
+
+	createEventHandler(w, req)
+
+	// check if the handler sent the correct event to the channel
+	select {
+	case got := <-eventChan:
+		if got.UserId != "test-user" || got.EventType != EventClick {
+			t.Errorf("queued event = %+v, want user=test-user and type=click", got)
+		}
+	default:
+		t.Fatal("handler did not queue an event")
+	}
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("Error reading response body: %v", err)
+	}
+
+	if got, want := resp.StatusCode, http.StatusCreated; got != want {
+		t.Errorf("status code = %d, want %d", got, want)
+	}
+
+	if got, want := string(body), "The event has been processed"; got != want {
+		t.Errorf("response body = %q, want %q", got, want)
+	}
+}
