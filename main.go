@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -79,7 +80,7 @@ func createEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// if the user id of the event is not set, do not create a new event
-	if newEvent.UserId == "" {
+	if strings.TrimSpace(newEvent.UserId) == "" {
 		http.Error(w, "User ID is required!", http.StatusBadRequest)
 		return
 	}
