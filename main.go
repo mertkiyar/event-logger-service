@@ -78,6 +78,12 @@ func createEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if the user id of the event is not set, do not create a new event
+	if newEvent.UserId == "" {
+		http.Error(w, "User ID is required!", http.StatusBadRequest)
+		return
+	}
+
 	// throw the new event data inside channel
 	eventChan <- newEvent
 
