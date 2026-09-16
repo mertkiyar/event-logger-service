@@ -95,7 +95,20 @@ func TestCreateEventHandlerInvalidEventType(t *testing.T) {
 	)
 	w := httptest.NewRecorder()
 
+	// create a separate buffered channel so this test does not use events from other tests
+	oldChannel := eventChan
+	eventChan = make(chan Event, 1)
+	t.Cleanup(func() { eventChan = oldChannel }) // restore the original channel when the test finishes
+
 	createEventHandler(w, req)
+
+	// check that the invalid event was not sent to the channel
+	select {
+	case got := <-eventChan:
+		t.Errorf("invalid event was queued: %+v", got)
+	default:
+		// expected: invalid event was not queued
+	}
 
 	resp := w.Result()
 	defer resp.Body.Close()
