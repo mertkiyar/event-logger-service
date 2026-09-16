@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -256,5 +258,55 @@ func TestGetEventsHandlerReturnsEmptyArrayIfThereIsNoEvent(t *testing.T) {
 
 	if got, want := string(body), "[]\n"; got != want {
 		t.Errorf("response body = %q, want %q", got, want)
+	}
+}
+
+/*
+	 Test Function: getEventsHandler(http.ResponseWriter, http.Request)
+		Input: two stored events
+		Expected Output: 200, "application/json", both events as JSON
+*/
+func TestGetEventsHandlerReturnsEvents(t *testing.T) {
+	req := httptest.NewRequest(
+		http.MethodGet,
+		"/events",
+		nil,
+	)
+	w := httptest.NewRecorder()
+
+	wantEvents := []Event{
+		{UserId: "user-1", EventType: EventClick},
+		{UserId: "user-2", EventType: EventLogin},
+	}
+
+	oldEvents := events
+	events = wantEvents
+	t.Cleanup(func() { events = oldEvents })
+
+	getEventsHandler(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("Error reading response body: %v", err)
+	}
+
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
+		t.Errorf("status code = %d, want %d", got, want)
+	}
+
+	if got, want := resp.Header.Get("Content-Type"), "application/json"; got != want {
+		t.Errorf("content type = %q, want %q", got, want)
+	}
+
+	var gotEvents []Event
+	if err := json.Unmarshal(body, &gotEvents); err != nil {
+		t.Fatalf("response is not valid JSON: %v", err)
+	}
+
+	if !reflect.DeepEqual(gotEvents, wantEvents) {
+		t.Errorf("events = %+v, want %+v", gotEvents, wantEvents)
 	}
 }
