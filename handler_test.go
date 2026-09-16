@@ -117,3 +117,41 @@ func TestCreateEventHandlerInvalidEventType(t *testing.T) {
 		t.Errorf("response body = %q, want %q", got, want)
 	}
 }
+
+/*
+	 Test Function: createEventHandler(http.ResponseWriter, http.Request)
+		Input: empty user id
+	 	Expected Output: 400, "text/plain; charset=utf-8", "User ID is required!\n"
+*/
+func TestCreateEventHandlerEmptyUserID(t *testing.T) {
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/events",
+		strings.NewReader(
+			`{"user_id":"","event_type":"click"}`,
+		),
+	)
+	w := httptest.NewRecorder()
+
+	createEventHandler(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("Error reading response body: %v", err)
+	}
+
+	if got, want := resp.StatusCode, http.StatusBadRequest; got != want {
+		t.Errorf("status code = %d, want %d", got, want)
+	}
+
+	if got, want := resp.Header.Get("Content-Type"), "text/plain; charset=utf-8"; got != want {
+		t.Errorf("content type = %q, want %q", got, want)
+	}
+
+	if got, want := string(body), "User ID is required!\n"; got != want {
+		t.Errorf("response body = %q, want %q", got, want)
+	}
+}
