@@ -217,3 +217,44 @@ func TestCreateEventHandlerValidEvent(t *testing.T) {
 		t.Errorf("response body = %q, want %q", got, want)
 	}
 }
+
+/*
+	 Test Function: getEventsHandler(http.ResponseWriter, http.Request)
+		Input: “no stored events”
+	 	Expected Output: 200, "application/json", "[]\n"
+*/
+func TestGetEventsHandlerReturnsEmptyArrayIfThereIsNoEvent(t *testing.T) {
+	req := httptest.NewRequest(
+		http.MethodGet,
+		"/events",
+		nil,
+	)
+	w := httptest.NewRecorder()
+
+	// clean all events for the test
+	oldEvents := events
+	events = nil
+	t.Cleanup(func() { events = oldEvents })
+
+	getEventsHandler(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("Error reading response body: %v", err)
+	}
+
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
+		t.Errorf("status code = %d, want %d", got, want)
+	}
+
+	if got, want := resp.Header.Get("Content-Type"), "application/json"; got != want {
+		t.Errorf("content type = %q, want %q", got, want)
+	}
+
+	if got, want := string(body), "[]\n"; got != want {
+		t.Errorf("response body = %q, want %q", got, want)
+	}
+}
