@@ -143,7 +143,7 @@ func TestCreateEventHandlerEmptyUserID(t *testing.T) {
 		http.MethodPost,
 		"/events",
 		strings.NewReader(
-			`{"user_id":"","event_type":"click"}`,
+			`{"user_id":"", "product_id":"product-1", "event_type":"click"}`,
 		),
 	)
 	w := httptest.NewRecorder()
@@ -181,7 +181,7 @@ func TestCreateEventHandlerValidEvent(t *testing.T) {
 		http.MethodPost,
 		"/events",
 		strings.NewReader(
-			`{"user_id":"test-user","event_type":"click"}`,
+			`{"user_id":"test-user", "product_id":"product-1", "event_type":"click"}`,
 		),
 	)
 	w := httptest.NewRecorder()
@@ -196,8 +196,8 @@ func TestCreateEventHandlerValidEvent(t *testing.T) {
 	// check if the handler sent the correct event to the channel
 	select {
 	case got := <-eventChan:
-		if got.UserID != "test-user" || got.EventType != EventClick {
-			t.Errorf("queued event = %+v, want user=test-user and type=click", got)
+		if got.UserID != "test-user" || got.ProductID != "product-1" || got.EventType != EventClick {
+			t.Errorf("queued event = %+v, want user=test-user, product=product-1 and type=click", got)
 		}
 	default:
 		t.Fatal("handler did not queue an event")
@@ -275,7 +275,7 @@ func TestGetEventsHandlerReturnsEvents(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	wantEvents := []Event{
-		{UserID: "user-1", EventType: EventClick},
+		{UserID: "user-1", ProductID: "product-1", EventType: EventClick},
 		{UserID: "user-2", EventType: EventLogin},
 	}
 
@@ -326,13 +326,13 @@ func TestGetEventsHandlerFiltersByUserID(t *testing.T) {
 
 	testEvents := []Event{
 		{UserID: "user-1", EventType: EventLogin},
-		{UserID: "user-1", EventType: EventClick},
+		{UserID: "user-1", ProductID: "product-1", EventType: EventClick},
 		{UserID: "user-2", EventType: EventLogin},
 	}
 
 	wantEvents := []Event{
 		{UserID: "user-1", EventType: EventLogin},
-		{UserID: "user-1", EventType: EventClick},
+		{UserID: "user-1", ProductID: "product-1", EventType: EventClick},
 	}
 
 	oldEvents := events
@@ -382,7 +382,7 @@ func TestGetEventsHandlerReturnsEmptyArrayForNoMatchingUserID(t *testing.T) {
 
 	wantEvents := []Event{
 		{UserID: "user-1", EventType: EventLogin},
-		{UserID: "user-1", EventType: EventClick},
+		{UserID: "user-1", ProductID: "product-1", EventType: EventClick},
 	}
 
 	oldEvents := events
@@ -428,8 +428,8 @@ func TestGetStatsHandlerCountsEventsByType(t *testing.T) {
 
 	testEvents := []Event{
 		{UserID: "user-1", EventType: EventLogin},
-		{UserID: "user-1", EventType: EventClick},
-		{UserID: "user-2", EventType: EventClick},
+		{UserID: "user-1", ProductID: "product-1", EventType: EventClick},
+		{UserID: "user-2", ProductID: "product-2", EventType: EventClick},
 	}
 
 	oldEvents := events
