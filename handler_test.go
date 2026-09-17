@@ -411,3 +411,84 @@ func TestGetEventsHandlerReturnsEmptyArrayForNoMatchingUserID(t *testing.T) {
 		t.Errorf("response body = %q, want %q", got, want)
 	}
 }
+
+/*
+	 Test Function: getStatsHandler(http.ResponseWriter, http.Request)
+		Input: three stored events
+		Expected Output: 200, "application/json", "login: 1, click: 2"
+*/
+func TestGetStatsHandlerCountsEventsByType(t *testing.T) {
+	req := httptest.NewRequest(
+		http.MethodGet,
+		"/stats",
+		nil,
+	)
+
+	w := httptest.NewRecorder()
+
+	testEvents := []Event{
+		{UserId: "user-1", EventType: EventLogin},
+		{UserId: "user-1", EventType: EventClick},
+		{UserId: "user-2", EventType: EventClick},
+	}
+
+	oldEvents := events
+	events = testEvents
+	t.Cleanup(func() { events = oldEvents })
+
+	getStatsHandler(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("Error reading response body: %v", err)
+	}
+
+	if got, want := resp.StatusCode, http.StatusOK; got != want {
+		t.Errorf("status code = %d, want %d", got, want)
+	}
+
+	if got, want := resp.Header.Get("Content-Type"), "application/json"; got != want {
+		t.Errorf("content type = %q, want %q", got, want)
+	}
+
+	var gotStats map[string]int
+	if err := json.Unmarshal(body, &gotStats); err != nil {
+		t.Fatalf("response is not valid JSON: %v", err)
+	}
+
+	wantStats := map[string]int{
+		string(EventLogin): 1,
+		string(EventClick): 2,
+	}
+
+	if !reflect.DeepEqual(gotStats, wantStats) {
+		t.Errorf("stats = %+v, want %+v", gotStats, wantStats)
+	}
+}
+
+/*
+	 Test Function: getStatsHandler(http.ResponseWriter, http.Request)
+		Input: POST /stats
+		Expected Output: 405
+*/
+func TestGetStatsHandlerRejectPostMethod(t *testing.T) {
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/stats",
+		nil,
+	)
+
+	w := httptest.NewRecorder()
+
+	getStatsHandler(w, req)
+
+	resp := w.Result()
+	defer resp.Body.Close()
+
+	if got, want := resp.StatusCode, http.StatusMethodNotAllowed; got != want {
+		t.Errorf("status code = %d, want %d", got, want)
+	}
+}
