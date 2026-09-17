@@ -16,7 +16,7 @@ var eventChan = make(chan Event, 10000)
 func eventWorker() {
 	for event := range eventChan {
 		events = append(events, event)
-		fmt.Println("new event processed:", event.UserId, "->", event.EventType)
+		fmt.Println("new event processed:", event.UserID, "->", event.EventType)
 	}
 }
 
@@ -80,7 +80,7 @@ func createEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// if the user id of the event is not set, do not create a new event
-	if strings.TrimSpace(newEvent.UserId) == "" {
+	if strings.TrimSpace(newEvent.UserID) == "" {
 		http.Error(w, "User ID is required!", http.StatusBadRequest)
 		return
 	}
@@ -117,7 +117,7 @@ func getEventsHandler(w http.ResponseWriter, r *http.Request) {
 	filteredEvents := []Event{}
 
 	for _, event := range events {
-		if event.UserId == userID {
+		if event.UserID == userID {
 			filteredEvents = append(filteredEvents, event)
 		}
 	}

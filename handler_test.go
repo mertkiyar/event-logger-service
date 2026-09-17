@@ -196,7 +196,7 @@ func TestCreateEventHandlerValidEvent(t *testing.T) {
 	// check if the handler sent the correct event to the channel
 	select {
 	case got := <-eventChan:
-		if got.UserId != "test-user" || got.EventType != EventClick {
+		if got.UserID != "test-user" || got.EventType != EventClick {
 			t.Errorf("queued event = %+v, want user=test-user and type=click", got)
 		}
 	default:
@@ -275,8 +275,8 @@ func TestGetEventsHandlerReturnsEvents(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	wantEvents := []Event{
-		{UserId: "user-1", EventType: EventClick},
-		{UserId: "user-2", EventType: EventLogin},
+		{UserID: "user-1", EventType: EventClick},
+		{UserID: "user-2", EventType: EventLogin},
 	}
 
 	oldEvents := events
@@ -325,14 +325,14 @@ func TestGetEventsHandlerFiltersByUserID(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	testEvents := []Event{
-		{UserId: "user-1", EventType: EventLogin},
-		{UserId: "user-1", EventType: EventClick},
-		{UserId: "user-2", EventType: EventLogin},
+		{UserID: "user-1", EventType: EventLogin},
+		{UserID: "user-1", EventType: EventClick},
+		{UserID: "user-2", EventType: EventLogin},
 	}
 
 	wantEvents := []Event{
-		{UserId: "user-1", EventType: EventLogin},
-		{UserId: "user-1", EventType: EventClick},
+		{UserID: "user-1", EventType: EventLogin},
+		{UserID: "user-1", EventType: EventClick},
 	}
 
 	oldEvents := events
@@ -381,8 +381,8 @@ func TestGetEventsHandlerReturnsEmptyArrayForNoMatchingUserID(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	wantEvents := []Event{
-		{UserId: "user-1", EventType: EventLogin},
-		{UserId: "user-1", EventType: EventClick},
+		{UserID: "user-1", EventType: EventLogin},
+		{UserID: "user-1", EventType: EventClick},
 	}
 
 	oldEvents := events
@@ -427,9 +427,9 @@ func TestGetStatsHandlerCountsEventsByType(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	testEvents := []Event{
-		{UserId: "user-1", EventType: EventLogin},
-		{UserId: "user-1", EventType: EventClick},
-		{UserId: "user-2", EventType: EventClick},
+		{UserID: "user-1", EventType: EventLogin},
+		{UserID: "user-1", EventType: EventClick},
+		{UserID: "user-2", EventType: EventClick},
 	}
 
 	oldEvents := events
