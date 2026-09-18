@@ -17,8 +17,14 @@ import (
 var events []Event
 var eventChan = make(chan Event, 10000)
 
-func eventWorker() {
+func eventWorker(collection *mongo.Collection) {
 	for event := range eventChan {
+		_, err := collection.InsertOne(context.Background(), event)
+		if err != nil {
+			fmt.Println("MongoDB insert error:", err)
+			continue
+		}
+
 		events = append(events, event)
 		fmt.Println("new event processed:", event.UserID, "->", event.EventType)
 	}
@@ -53,7 +59,9 @@ func main() {
 
 	fmt.Println("MongoDB connected")
 
-	go eventWorker()
+	collection := client.Database("event_logger").Collection("events")
+
+	go eventWorker(collection)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Event Logger Service working good!")
 	})

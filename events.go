@@ -10,9 +10,9 @@ const (
 )
 
 type Event struct {
-	UserID    string    `json:"user_id"`
-	ProductID string    `json:"product_id,omitempty"` // omitempty = can be empty
-	EventType EventName `json:"event_type"`
+	UserID    string    `json:"user_id" bson:"user_id"`
+	ProductID string    `json:"product_id,omitempty" bson:"product_id,omitempty"` // omitempty = can be empty
+	EventType EventName `json:"event_type" bson:"event_type"`
 }
 
 func (e EventName) IsValid() bool {
