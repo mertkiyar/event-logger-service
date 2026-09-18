@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -8,6 +9,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 var events []Event
@@ -32,6 +36,23 @@ type visitor struct {
 }
 
 func main() {
+
+	// connect to the local mongodb server
+	client, err := mongo.Connect(options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err != nil {
+		fmt.Println("MongoDB client error:", err)
+		return
+	}
+	defer client.Disconnect(context.Background())
+
+	// check that mongodb is reachable before starting the HTTP server.
+	if err := client.Ping(context.Background(), nil); err != nil {
+		fmt.Println("MongoDB connection error:", err)
+		return
+	}
+
+	fmt.Println("MongoDB connected")
+
 	go eventWorker()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Event Logger Service working good!")
@@ -52,7 +73,7 @@ func main() {
 
 	fmt.Println("Service working on 8080 port")
 
-	err := http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
 
 	if err != nil {
 		fmt.Println("Service not started!", err)
