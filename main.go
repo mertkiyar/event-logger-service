@@ -94,6 +94,8 @@ func main() {
 
 	http.HandleFunc("/stats", getStatsHandler)
 
+	http.HandleFunc("/product-stats", getProductStatsHandler)
+
 	fmt.Println("Service working on 8080 port")
 
 	err = http.ListenAndServe(":8080", nil)
