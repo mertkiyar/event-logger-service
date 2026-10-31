@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
@@ -60,6 +61,20 @@ func main() {
 	fmt.Println("MongoDB connected")
 
 	collection := client.Database("event_logger").Collection("events")
+
+	// load stored events before starting the worker adnd http server
+	cursor, err := collection.Find(context.Background(), bson.D{})
+
+	if err != nil {
+		fmt.Println("MongoDB read error:", err)
+		return
+	}
+	if err = cursor.All(context.Background(), &events); err != nil {
+		fmt.Println("MongoDB decode error:", err)
+		return
+	}
+
+	fmt.Println("events:", events)
 
 	go eventWorker(collection)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
