@@ -133,8 +133,8 @@ func createEventHandler(w http.ResponseWriter, r *http.Request) {
 	eventChan <- newEvent
 
 	// write the console 201 success http status code
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "The event has been processed")
+	w.WriteHeader(http.StatusAccepted)
+	fmt.Fprintf(w, "The event has been accepted")
 }
 
 func getEventsHandler(w http.ResponseWriter, r *http.Request) {

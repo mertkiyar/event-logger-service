@@ -174,7 +174,7 @@ func TestCreateEventHandlerEmptyUserID(t *testing.T) {
 /*
 	 Test Function: createEventHandler(http.ResponseWriter, http.Request)
 		Input: valid event
-	 	Expected Output: 201, "The event has been processed"
+	 	Expected Output: 202, "The event has been accepted"
 */
 func TestCreateEventHandlerValidEvent(t *testing.T) {
 	req := httptest.NewRequest(
@@ -211,11 +211,11 @@ func TestCreateEventHandlerValidEvent(t *testing.T) {
 		t.Fatalf("Error reading response body: %v", err)
 	}
 
-	if got, want := resp.StatusCode, http.StatusCreated; got != want {
+	if got, want := resp.StatusCode, http.StatusAccepted; got != want {
 		t.Errorf("status code = %d, want %d", got, want)
 	}
 
-	if got, want := string(body), "The event has been processed"; got != want {
+	if got, want := string(body), "The event has been accepted"; got != want {
 		t.Errorf("response body = %q, want %q", got, want)
 	}
 }
